@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>NeuCoins Calculator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+  <main class="container">
+    <h1><i class="fa-solid fa-coins"></i> NeuCoins Calculator</h1>
+    <!-- Card Type Input -->
+    <fieldset class="card-type-group">
+      <legend>Card Type</legend>
+      <label class="card-radio infinity">
+        <input type="radio" name="cardType" value="Infinity" checked />
+        <span class="card-icon"><i class="fa-solid fa-gem"></i></span>
+        Infinity
+      </label>
+      <label class="card-radio plus">
+        <input type="radio" name="cardType" value="Plus" />
+        <span class="card-icon"><i class="fa-solid fa-award"></i></span>
+        Plus
+      </label>
+    </fieldset>
+
+    <div class="section">
+      <label for="amount">Transaction Amount (₹)</label>
+      <input type="text" id="amount" placeholder="Enter amount" required aria-required="true" autocomplete="off" inputmode="numeric" />
+    </div>
+
+    <fieldset class="section">
+      <legend>Transaction Type</legend>
+      <label><input type="radio" name="txnType" value="Regular" checked /> Regular</label>
+      <label><input type="radio" name="txnType" value="UPI" /> UPI</label>
+      <label><input type="radio" name="txnType" value="EMI" /> EMI</label>
+    </fieldset>
+
+    <div id="upiSection" class="section hidden" aria-hidden="true">
+      <fieldset>
+        <legend>UPI Type</legend>
+        <label><input type="radio" name="upiType" value="TataNeu" /> Tata Neu UPI ID <i class="fa-solid fa-bolt fa-xs purple"></i></label>
+        <label><input type="radio" name="upiType" value="Other" /> Other UPI ID</label>
+      </fieldset>
+    </div>
+
+    <div id="categorySection" class="section">
+      <label for="category">Category</label>
+      <select id="category" required aria-required="true">
+        <option value="">Select category</option>
+        <option value="Groceries">Grocery</option>
+        <option value="BillPayments">Bill Payments</option>
+        <option value="Insurance">Insurance</option>
+        <option value="Telecom">Telecom</option>
+        <option value="Electronics">Electronics</option>
+        <option value="Fashion">Fashion</option>
+        <option value="Travel">Travel</option>
+        <option value="Others">Others</option>
+        <option value="Jewellery">Fashion Accessories & Jewellery</option>
+        <option value="FoodDelivery">Food Delivery</option>
+        <option value="Fuel">Fuel</option>
+        <option value="WalletLoads">Wallet Loads</option>
+        <option value="GiftCard">Gift/Prepaid Card Loads</option>
+        <option value="VoucherPurchase">Voucher Purchases</option>
+        <option value="Government">Government Spends</option>
+      </select>
+    </div>
+
+    <div id="billPaymentSection" class="section hidden" aria-hidden="true">
+      <fieldset>
+        <legend>Transaction done via Tata Neu App/Website? <i class="fa-solid fa-circle-question help-icon" title="Selecting 'Yes' gives you Bonus NeuCoins!"></i></legend>
+        <label><input type="radio" name="billNeuApp" value="Yes" /> Yes</label>
+        <label><input type="radio" name="billNeuApp" value="No" /> No</label>
+      </fieldset>
+    </div>
+
+    <div id="partnerSection" class="section hidden" aria-hidden="true">
+      <fieldset>
+        <legend>Was this on a partner Tata brand? <i class="fa-solid fa-circle-question help-icon" title="Partner brands like Croma, Tata CLiQ, etc."></i></legend>
+        <label><input type="radio" name="partnerTxn" value="Yes" /> Yes</label>
+        <label><input type="radio" name="partnerTxn" value="No" /> No</label>
+      </fieldset>
+    </div>
+
+    <div id="brandSection" class="section hidden" aria-hidden="true">
+      <label for="brandSelect">Select Partner Tata Brand</label>
+      <select id="brandSelect"></select>
+    </div>
+
+    <div class="button-group">
+      <button id="calculate" type="button"><i class="fa-solid fa-calculator"></i> Calculate NeuCoins</button>
+      <button id="reset" type="button"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+    </div>
+
+    <div id="output" class="output-card hidden" aria-live="polite"></div>
+  </main>
+  <footer>
+    <div class="footer-content">
+      <span>Made with <i class="fa-solid fa-heart"></i> for Tata Neu Cardholders</span>
+      <span class="version">v2.0</span>
+    </div>
+  </footer>
+  <script src="script.js"></script>
+</body>
+</html>
