@@ -6,7 +6,8 @@ const categoryBrands = {
   BillPayments: ["Tata Pay"],
   Groceries: ["Big Basket"],
   Jewellery: ["Titan", "Tanishq"],
-  FoodDelivery: ["Qmin", "Food Delivery via Tata Neu"]
+  FoodDelivery: ["Qmin", "Food Delivery via Tata Neu"],
+  Insurance: [] // To enable conditional logic on Insurance
 };
 
 const excludedCategories = [
@@ -16,6 +17,18 @@ const excludedCategories = [
   "VoucherPurchase",
   "Government"
 ];
+
+// Bonus capping for PLUS cards by category
+const plusBonusCaps = {
+  Electronics: 6000,
+  Fashion: 3000,
+  Travel: 8000,
+  Others: 2000,
+  BillPayments: 1000,
+  Groceries: 1000,
+  Jewellery: 6000,
+  FoodDelivery: 500
+};
 
 const brandCaps = {
   Croma: 21000,
@@ -33,7 +46,19 @@ const brandCaps = {
   Tanishq: 21000,
   Qmin: 1750,
   "Food Delivery via Tata Neu": 1750,
-  BillPayments: 3500 // Add capping for Bill Payments Bonus NeuCoins
+  BillPayments: 3500 // Not used for Plus, replaced by plusBonusCaps
+};
+
+const insuranceProductBonusEligibility = {
+  "SSIP": true,
+  "Term Life": true,
+  "Health Insurance": true,
+  "Motor Insurance": true,
+  "Super Top-Up": true,
+  "Cyber": false,
+  "Personal Accident": false,
+  "Home Protect": false,
+  "Card Protect": false
 };
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -42,6 +67,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const upiSection = document.getElementById("upiSection");
   const categorySection = document.getElementById("categorySection");
   const billPaymentSection = document.getElementById("billPaymentSection");
+  const insuranceViaNeuSection = document.getElementById("insuranceViaNeuSection");
+  const insuranceTypeSection = document.getElementById("insuranceTypeSection");
+  const insuranceProductSection = document.getElementById("insuranceProductSection");
+  const insuranceProductSelect = document.getElementById("insuranceProduct");
   const partnerSection = document.getElementById("partnerSection");
   const brandSection = document.getElementById("brandSection");
   const brandSelect = document.getElementById("brandSelect");
@@ -52,7 +81,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const categorySelect = document.getElementById("category");
   const body = document.body;
 
-  // Set card color palette
   function updatePalette() {
     const cardType = getRadioValue("cardType");
     if (cardType === "Plus") {
@@ -67,13 +95,11 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   updatePalette();
 
-  // Format number with commas
   function formatWithCommas(num) {
     if (typeof num === "number") num = num.toString();
     return num.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   }
 
-  // Format input as user types
   amountInput.addEventListener("input", (e) => {
     let raw = e.target.value.replace(/,/g, "").replace(/[^\d.]/g, "");
     if ((raw.match(/\./g) || []).length > 1) {
@@ -101,6 +127,9 @@ document.addEventListener("DOMContentLoaded", () => {
     showSection(upiSection, txnType === "UPI");
     showSection(categorySection, true);
     showSection(billPaymentSection, false);
+    showSection(insuranceViaNeuSection, false);
+    showSection(insuranceTypeSection, false);
+    showSection(insuranceProductSection, false);
     showSection(partnerSection, false);
     showSection(brandSection, false);
   }
@@ -134,9 +163,28 @@ document.addEventListener("DOMContentLoaded", () => {
       showError("Please specify if Bill Payment was via Tata Neu App/Website.");
       return false;
     }
+    if (categorySelect.value === "Insurance") {
+      const insuranceNeuApp = getRadioValue("insuranceNeuApp");
+      if (!insuranceNeuApp) {
+        showError("Please specify if Insurance transaction was via Tata Neu App/Website.");
+        return false;
+      }
+      if (insuranceNeuApp === "Yes") {
+        const insuranceType = getRadioValue("insuranceType");
+        if (!insuranceType) {
+          showError("Please specify if it was a purchase or premium payment transaction.");
+          return false;
+        }
+        if (insuranceType === "Purchase" && !insuranceProductSelect.value) {
+          showError("Please select the insurance product.");
+          return false;
+        }
+      }
+    }
     if (
       categoryBrands[categorySelect.value] &&
       categorySelect.value !== "BillPayments" &&
+      categorySelect.value !== "Insurance" &&
       !excludedCategories.includes(categorySelect.value) &&
       !getRadioValue("partnerTxn")
     ) {
@@ -175,24 +223,65 @@ document.addEventListener("DOMContentLoaded", () => {
     const category = e.target.value;
     if (category === "BillPayments") {
       showSection(billPaymentSection, true);
+      showSection(insuranceViaNeuSection, false);
+      showSection(insuranceTypeSection, false);
+      showSection(insuranceProductSection, false);
       showSection(partnerSection, false);
       showSection(brandSection, false);
       resetRadioGroup("partnerTxn");
       brandSelect.innerHTML = "";
+    } else if (category === "Insurance") {
+      showSection(billPaymentSection, false);
+      showSection(insuranceViaNeuSection, true);
+      showSection(insuranceTypeSection, false);
+      showSection(insuranceProductSection, false);
+      showSection(partnerSection, false);
+      showSection(brandSection, false);
+      resetRadioGroup("billNeuApp");
+      resetRadioGroup("partnerTxn");
+      brandSelect.innerHTML = "";
     } else if (categoryBrands[category] && !excludedCategories.includes(category)) {
       showSection(billPaymentSection, false);
+      showSection(insuranceViaNeuSection, false);
+      showSection(insuranceTypeSection, false);
+      showSection(insuranceProductSection, false);
       showSection(partnerSection, true);
       showSection(brandSection, false);
       resetRadioGroup("billNeuApp");
       brandSelect.innerHTML = "";
     } else {
       showSection(billPaymentSection, false);
+      showSection(insuranceViaNeuSection, false);
+      showSection(insuranceTypeSection, false);
+      showSection(insuranceProductSection, false);
       showSection(partnerSection, false);
       showSection(brandSection, false);
       resetRadioGroup("partnerTxn");
       resetRadioGroup("billNeuApp");
       brandSelect.innerHTML = "";
     }
+  });
+
+  document.getElementsByName("insuranceNeuApp").forEach(radio => {
+    radio.addEventListener("change", e => {
+      if (e.target.value === "Yes") {
+        showSection(insuranceTypeSection, true);
+        showSection(insuranceProductSection, false);
+      } else {
+        showSection(insuranceTypeSection, false);
+        showSection(insuranceProductSection, false);
+      }
+    });
+  });
+
+  document.getElementsByName("insuranceType").forEach(radio => {
+    radio.addEventListener("change", e => {
+      if (e.target.value === "Purchase") {
+        showSection(insuranceProductSection, true);
+      } else {
+        showSection(insuranceProductSection, false);
+      }
+    });
   });
 
   document.getElementsByName("partnerTxn").forEach(radio => {
@@ -217,7 +306,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!validateInputs()) return;
 
     const amount = parseFloat(amountInput.value.replace(/,/g, ""));
-    const cardType = getRadioValue("cardType"); // Infinity or Plus
+    const cardType = getRadioValue("cardType");
     const txnType = getRadioValue("txnType");
     const category = categorySelect.value;
     const upiType = getRadioValue("upiType");
@@ -225,7 +314,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const partnerTxn = getRadioValue("partnerTxn");
     const brand = brandSelect.value;
 
+    // Insurance pathway
+    const insuranceNeuApp = getRadioValue("insuranceNeuApp");
+    const insuranceType = getRadioValue("insuranceType");
+    const insuranceProduct = insuranceProductSelect.value;
+
     let baseRate = 0, bonusRate = 0, baseCap = null, bonusCap = null;
+    let baseNeuCoins = 0, bonusNeuCoins = 0, totalNeuCoins = 0;
+    let capped = false;
 
     // Excluded categories
     if (excludedCategories.includes(category)) {
@@ -235,62 +331,150 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    if (cardType === "Infinity") {
-      // EMI
-      if (txnType === "EMI") {
-        baseRate = 0.015;
-      } else if (txnType === "UPI") {
-        baseRate = 0.005;
-        if (upiType === "TataNeu") bonusRate = 0.01;
-        baseCap = 500;
-        bonusCap = 500;
-      } else { // Regular
-        baseRate = 0.015;
-        if (partnerTxn === "Yes" && categoryBrands[category]?.includes(brand)) {
-          bonusRate = 0.035;
-        } else if (category === "BillPayments") {
-          if (billNeuApp === "Yes") {
+    // INSURANCE LOGIC
+    if (category === "Insurance") {
+      // All capping as per bill payments
+      baseCap = (cardType === "Plus") ? 2000 : 2000;
+      bonusCap = (cardType === "Plus") ? plusBonusCaps.BillPayments : brandCaps.BillPayments;
+      // Default: No bonus
+      baseRate = (cardType === "Plus") ? 0.01 : 0.015;
+      bonusRate = 0;
+
+      if (insuranceNeuApp === "Yes") {
+        if (insuranceType === "PremiumPayment") {
+          // Eligible for bonus
+          bonusRate = (cardType === "Plus") ? 0.01 : 0.035;
+        } else if (insuranceType === "Purchase") {
+          if (insuranceProductBonusEligibility[insuranceProduct]) {
+            bonusRate = (cardType === "Plus") ? 0.01 : 0.035;
+          }
+        }
+      }
+      // Calculation
+      baseNeuCoins = amount * baseRate;
+      bonusNeuCoins = amount * bonusRate;
+
+      if (baseCap !== null && baseNeuCoins > baseCap) baseNeuCoins = baseCap;
+      if (bonusCap !== null && bonusNeuCoins > bonusCap) bonusNeuCoins = bonusCap;
+      totalNeuCoins = baseNeuCoins + bonusNeuCoins;
+
+      // Output
+      let paletteClass = cardType === "Plus" ? "blue" : "purple";
+      let icon = totalNeuCoins > 0 ? '<span class="success-icon"><i class="fa-solid fa-circle-check"></i></span>' : '';
+      let cardTitle = "Your NeuCoins Summary";
+      let infoMsg = "";
+
+      if (baseCap !== null && baseNeuCoins === baseCap) {
+        infoMsg += `<div class="neucoins-cap"><i class="fa-solid fa-arrow-up"></i> Base NeuCoins capped at ${baseCap}.</div>`;
+      }
+      if (bonusCap !== null && bonusNeuCoins === bonusCap && bonusRate > 0) {
+        infoMsg += `<div class="neucoins-cap"><i class="fa-solid fa-arrow-up"></i> Bonus NeuCoins capped at ${bonusCap}.</div>`;
+      }
+      let breakdownHtml = `
+        <div class="neucoins-breakdown">
+          <div>Base: <span>${baseNeuCoins.toFixed(2)}</span></div>
+          <div>Bonus: <span>${bonusNeuCoins.toFixed(2)}</span></div>
+        </div>
+      `;
+      let result = `
+        ${icon}
+        <h2>${cardTitle}</h2>
+        <div class="neucoins-total ${paletteClass}">Total: <span>${totalNeuCoins.toFixed(2)}</span></div>
+        ${breakdownHtml}
+        ${infoMsg}
+        <div class="info">Based on <b>${cardType} Card</b> rewards structure.</div>
+      `;
+      output.innerHTML = result;
+      output.classList.remove("hidden");
+      output.classList.add("output-card");
+      return;
+    }
+
+    // UPI transactions
+    if (txnType === "UPI") {
+      let rawBase = amount * ((cardType === "Infinity") ? 0.005 : 0.0025);
+      let rawBonus = 0;
+      if ((cardType === "Infinity" && upiType === "TataNeu") || (cardType === "Plus" && upiType === "TataNeu")) {
+        rawBonus = amount * ((cardType === "Infinity") ? 0.01 : 0.0075);
+      }
+      let rawTotal = rawBase + rawBonus;
+
+      if (rawTotal > 500) {
+        let ratioBase = rawBase / rawTotal;
+        let ratioBonus = rawBonus / rawTotal;
+        baseNeuCoins = +(500 * ratioBase).toFixed(2);
+        bonusNeuCoins = +(500 * ratioBonus).toFixed(2);
+        totalNeuCoins = 500;
+        capped = true;
+      } else {
+        baseNeuCoins = rawBase;
+        bonusNeuCoins = rawBonus;
+        totalNeuCoins = rawTotal;
+        capped = false;
+      }
+    } else {
+      // Base and bonus rate logic for Regular/EMI
+      if (cardType === "Infinity") {
+        if (txnType === "EMI") {
+          baseRate = 0.015;
+        } else {
+          baseRate = 0.015;
+          if (partnerTxn === "Yes" && categoryBrands[category]?.includes(brand)) {
             bonusRate = 0.035;
-            bonusCap = brandCaps.BillPayments;
+          } else if (category === "BillPayments") {
+            if (billNeuApp === "Yes") {
+              bonusRate = 0.035;
+              bonusCap = brandCaps.BillPayments;
+            }
           }
         }
-      }
-    } else if (cardType === "Plus") {
-      // EMI - for Plus, treating as regular (1% base, 0 bonus)
-      if (txnType === "EMI") {
-        baseRate = 0.01;
-      } else if (txnType === "UPI") {
-        baseRate = 0.0025;
-        if (upiType === "TataNeu") bonusRate = 0.0075;
-        baseCap = 500;
-        bonusCap = 500;
-      } else { // Regular
-        baseRate = 0.01;
-        if (partnerTxn === "Yes" && categoryBrands[category]?.includes(brand)) {
-          bonusRate = 0.01;
-        } else if (category === "BillPayments") {
-          if (billNeuApp === "Yes") {
+      } else if (cardType === "Plus") {
+        if (txnType === "EMI") {
+          baseRate = 0.01;
+        } else {
+          baseRate = 0.01;
+          if (partnerTxn === "Yes" && categoryBrands[category]?.includes(brand)) {
             bonusRate = 0.01;
-            bonusCap = brandCaps.BillPayments;
+          } else if (category === "BillPayments") {
+            if (billNeuApp === "Yes") {
+              bonusRate = 0.01;
+              bonusCap = plusBonusCaps.BillPayments;
+            }
           }
         }
       }
+      // Base cap for grocery, billpayments, insurance, telecom
+      if (cardType === "Plus") {
+        if (category === "Groceries") {
+          baseCap = 1000;
+        } else if (["BillPayments", "Insurance", "Telecom"].includes(category)) {
+          baseCap = 2000;
+        }
+      } else {
+        if (["Groceries", "BillPayments", "Insurance", "Telecom"].includes(category)) {
+          baseCap = 2000;
+        }
+      }
+      // Bonus capping for categories (Plus only, per latest caps)
+      if (cardType === "Plus") {
+        let plusCapKey = category;
+        if (plusBonusCaps.hasOwnProperty(plusCapKey)) {
+          bonusCap = plusBonusCaps[plusCapKey];
+        }
+      }
+      if (partnerTxn === "Yes" && brandCaps[brand]) {
+        if (!(cardType === "Plus" && plusBonusCaps.hasOwnProperty(category))) {
+          bonusCap = brandCaps[brand];
+        }
+      }
+
+      baseNeuCoins = amount * baseRate;
+      bonusNeuCoins = amount * bonusRate;
+
+      if (baseCap !== null && baseNeuCoins > baseCap) baseNeuCoins = baseCap;
+      if (bonusCap !== null && bonusNeuCoins > bonusCap) bonusNeuCoins = bonusCap;
+      totalNeuCoins = baseNeuCoins + bonusNeuCoins;
     }
-
-    if (["Groceries", "BillPayments", "Insurance", "Telecom"].includes(category)) {
-      baseCap = 2000;
-    }
-    if (partnerTxn === "Yes" && brandCaps[brand]) {
-      bonusCap = brandCaps[brand];
-    }
-
-    let baseNeuCoins = amount * baseRate;
-    let bonusNeuCoins = amount * bonusRate;
-
-    if (baseCap !== null && baseNeuCoins > baseCap) baseNeuCoins = baseCap;
-    if (bonusCap !== null && bonusNeuCoins > bonusCap) bonusNeuCoins = bonusCap;
-
-    let totalNeuCoins = baseNeuCoins + bonusNeuCoins;
 
     // Build output card
     let paletteClass = cardType === "Plus" ? "blue" : "purple";
@@ -298,22 +482,28 @@ document.addEventListener("DOMContentLoaded", () => {
     let cardTitle = "Your NeuCoins Summary";
     let infoMsg = "";
 
-    // Cap info
-    if (baseCap !== null && baseNeuCoins === baseCap) {
+    if (txnType === "UPI" && capped) {
+      infoMsg += `<div class="neucoins-cap"><i class="fa-solid fa-arrow-up"></i> UPI NeuCoins capped at 500 per month (Base + Bonus).</div>`;
+    }
+    if (txnType !== "UPI" && baseCap !== null && baseNeuCoins === baseCap) {
       infoMsg += `<div class="neucoins-cap"><i class="fa-solid fa-arrow-up"></i> Base NeuCoins capped at ${baseCap}.</div>`;
     }
-    if (bonusCap !== null && bonusNeuCoins === bonusCap && bonusRate > 0) {
+    if (txnType !== "UPI" && bonusCap !== null && bonusNeuCoins === bonusCap && bonusRate > 0) {
       infoMsg += `<div class="neucoins-cap"><i class="fa-solid fa-arrow-up"></i> Bonus NeuCoins capped at ${bonusCap}.</div>`;
     }
+
+    let breakdownHtml = `
+      <div class="neucoins-breakdown">
+        <div>Base: <span>${baseNeuCoins.toFixed(2)}</span></div>
+        <div>Bonus: <span>${bonusNeuCoins.toFixed(2)}</span></div>
+      </div>
+    `;
 
     let result = `
       ${icon}
       <h2>${cardTitle}</h2>
       <div class="neucoins-total ${paletteClass}">Total: <span>${totalNeuCoins.toFixed(2)}</span></div>
-      <div class="neucoins-breakdown">
-        <div>Base: <span>${baseNeuCoins.toFixed(2)}</span></div>
-        <div>Bonus: <span>${bonusNeuCoins.toFixed(2)}</span></div>
-      </div>
+      ${breakdownHtml}
       ${infoMsg}
       <div class="info">Based on <b>${cardType} Card</b> rewards structure.</div>
     `;
@@ -329,10 +519,16 @@ document.addEventListener("DOMContentLoaded", () => {
     resetRadioGroup("txnType", "Regular");
     resetRadioGroup("upiType");
     resetRadioGroup("billNeuApp");
+    resetRadioGroup("insuranceNeuApp");
+    resetRadioGroup("insuranceType");
     resetRadioGroup("partnerTxn");
+    insuranceProductSelect.value = "";
     brandSelect.innerHTML = "";
     showSection(upiSection, false);
     showSection(billPaymentSection, false);
+    showSection(insuranceViaNeuSection, false);
+    showSection(insuranceTypeSection, false);
+    showSection(insuranceProductSection, false);
     showSection(partnerSection, false);
     showSection(brandSection, false);
     output.classList.add("hidden");
