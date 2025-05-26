@@ -7,7 +7,7 @@ const categoryBrands = {
   Groceries: ["Big Basket"],
   Jewellery: ["Titan", "Tanishq"],
   FoodDelivery: ["Qmin", "Food Delivery via Tata Neu"],
-  Insurance: [] // To enable conditional logic on Insurance
+  Insurance: []
 };
 
 const excludedCategories = [
@@ -18,7 +18,6 @@ const excludedCategories = [
   "Government"
 ];
 
-// Bonus capping for PLUS cards by category
 const plusBonusCaps = {
   Electronics: 6000,
   Fashion: 3000,
@@ -46,7 +45,7 @@ const brandCaps = {
   Tanishq: 21000,
   Qmin: 1750,
   "Food Delivery via Tata Neu": 1750,
-  BillPayments: 3500 // Not used for Plus, replaced by plusBonusCaps
+  BillPayments: 3500
 };
 
 const insuranceProductBonusEligibility = {
@@ -314,7 +313,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const partnerTxn = getRadioValue("partnerTxn");
     const brand = brandSelect.value;
 
-    // Insurance pathway
     const insuranceNeuApp = getRadioValue("insuranceNeuApp");
     const insuranceType = getRadioValue("insuranceType");
     const insuranceProduct = insuranceProductSelect.value;
@@ -323,7 +321,6 @@ document.addEventListener("DOMContentLoaded", () => {
     let baseNeuCoins = 0, bonusNeuCoins = 0, totalNeuCoins = 0;
     let capped = false;
 
-    // Excluded categories
     if (excludedCategories.includes(category)) {
       output.innerHTML = `<strong><i class="fa-solid fa-circle-info"></i> No NeuCoins earned for this category.</strong>`;
       output.classList.remove("hidden");
@@ -333,16 +330,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // INSURANCE LOGIC
     if (category === "Insurance") {
-      // All capping as per bill payments
       baseCap = (cardType === "Plus") ? 2000 : 2000;
       bonusCap = (cardType === "Plus") ? plusBonusCaps.BillPayments : brandCaps.BillPayments;
-      // Default: No bonus
       baseRate = (cardType === "Plus") ? 0.01 : 0.015;
       bonusRate = 0;
-
       if (insuranceNeuApp === "Yes") {
         if (insuranceType === "PremiumPayment") {
-          // Eligible for bonus
           bonusRate = (cardType === "Plus") ? 0.01 : 0.035;
         } else if (insuranceType === "Purchase") {
           if (insuranceProductBonusEligibility[insuranceProduct]) {
@@ -350,15 +343,12 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }
       }
-      // Calculation
       baseNeuCoins = amount * baseRate;
       bonusNeuCoins = amount * bonusRate;
-
       if (baseCap !== null && baseNeuCoins > baseCap) baseNeuCoins = baseCap;
       if (bonusCap !== null && bonusNeuCoins > bonusCap) bonusNeuCoins = bonusCap;
       totalNeuCoins = baseNeuCoins + bonusNeuCoins;
 
-      // Output
       let paletteClass = cardType === "Plus" ? "blue" : "purple";
       let icon = totalNeuCoins > 0 ? '<span class="success-icon"><i class="fa-solid fa-circle-check"></i></span>' : '';
       let cardTitle = "Your NeuCoins Summary";
@@ -390,7 +380,6 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // UPI transactions
     if (txnType === "UPI") {
       let rawBase = amount * ((cardType === "Infinity") ? 0.005 : 0.0025);
       let rawBonus = 0;
@@ -398,7 +387,6 @@ document.addEventListener("DOMContentLoaded", () => {
         rawBonus = amount * ((cardType === "Infinity") ? 0.01 : 0.0075);
       }
       let rawTotal = rawBase + rawBonus;
-
       if (rawTotal > 500) {
         let ratioBase = rawBase / rawTotal;
         let ratioBonus = rawBonus / rawTotal;
@@ -413,7 +401,6 @@ document.addEventListener("DOMContentLoaded", () => {
         capped = false;
       }
     } else {
-      // Base and bonus rate logic for Regular/EMI
       if (cardType === "Infinity") {
         if (txnType === "EMI") {
           baseRate = 0.015;
@@ -443,7 +430,6 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }
       }
-      // Base cap for grocery, billpayments, insurance, telecom
       if (cardType === "Plus") {
         if (category === "Groceries") {
           baseCap = 1000;
@@ -455,7 +441,6 @@ document.addEventListener("DOMContentLoaded", () => {
           baseCap = 2000;
         }
       }
-      // Bonus capping for categories (Plus only, per latest caps)
       if (cardType === "Plus") {
         let plusCapKey = category;
         if (plusBonusCaps.hasOwnProperty(plusCapKey)) {
@@ -470,13 +455,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
       baseNeuCoins = amount * baseRate;
       bonusNeuCoins = amount * bonusRate;
-
       if (baseCap !== null && baseNeuCoins > baseCap) baseNeuCoins = baseCap;
       if (bonusCap !== null && bonusNeuCoins > bonusCap) bonusNeuCoins = bonusCap;
       totalNeuCoins = baseNeuCoins + bonusNeuCoins;
     }
 
-    // Build output card
     let paletteClass = cardType === "Plus" ? "blue" : "purple";
     let icon = totalNeuCoins > 0 ? '<span class="success-icon"><i class="fa-solid fa-circle-check"></i></span>' : '';
     let cardTitle = "Your NeuCoins Summary";
