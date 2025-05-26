@@ -1,62 +1,385 @@
 :root {
-  /* Infinity card (purple) */
-  --accent-infinity: #7c3aed;
-  --accent-infinity-dark: #5b21b6;
-  --accent-infinity-light: #ede9fe;
-  /* Plus card (blue) */
-  --accent-plus: #2563eb;
-  --accent-plus-dark: #1e40af;
-  --accent-plus-light: #dbeafe;
-  /* Shared */
-  --bg-infinity: linear-gradient(120deg, #ede9fe 0%, #e0e7ff 100%);
-  --bg-plus: linear-gradient(120deg, #dbeafe 0%, #e0e7ff 100%);
-  --card-bg: #fff;
-  --border: #e5e7eb;
-  --text: #22223b;
-  --success: #14b8a6;
+  --primary-purple: #6f42c1;
+  --primary-blue: #0e6bce;
+  --primary-plus: #0e6bce;
+  --primary-infinity: #6f42c1;
+  --secondary: #f4f6fa;
+  --accent: #ffd700;
+  --text: #212529;
   --danger: #e11d48;
-  --footer-bg: #22223b;
-  --footer-text: #fff;
+  --success: #16a34a;
+  --gray: #f3f4f6;
+  --border: #e0e0e0;
+  --output-card-bg: #fff;
+  --output-card-shadow: 0 2px 24px 4px rgba(0,0,0,0.06);
 }
 
-/* Default: Infinity card palette */
-body {
-  font-family: 'Segoe UI', Arial, sans-serif;
-  background: var(--bg-infinity);
+html, body {
   margin: 0;
   padding: 0;
-  transition: background 0.5s;
+  background: var(--gray);
+  color: var(--text);
+  font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+  min-height: 100vh;
 }
 
-/* Plus card palette */
-body.plus-card {
-  background: var(--bg-plus);
-}
-
-/* ... rest of your CSS remains unchanged ... */
 .container {
-  background: var(--card-bg);
-  max-width: 500px;
-  margin: 36px auto 24px auto;
-  padding: 26px 24px 24px 24px;
-  border-radius: 18px;
-  box-shadow: 0 6px 32px rgba(60,20,100,0.13);
-  transition: border 0.3s;
-  border: 2px solid var(--accent-infinity);
+  max-width: 460px;
+  margin: 2rem auto 0 auto;
+  background: #fff;
+  padding: 2.2rem 1.6rem 1.2rem 1.6rem;
+  border-radius: 1.2rem;
+  box-shadow: 0 4px 32px 0 rgba(111,66,193,0.13);
+  position: relative;
 }
-body.plus-card .container { border-color: var(--accent-plus); }
 
 h1 {
   text-align: center;
-  color: var(--accent-infinity);
-  font-size: 2.1rem;
-  margin-bottom: 12px;
-  letter-spacing: 0.03em;
+  margin-top: 0;
+  font-size: 2rem;
+  color: var(--primary-purple);
+  letter-spacing: -1px;
+  margin-bottom: 1.8rem;
+}
+h1 .fa-coins {
+  color: var(--accent);
+  margin-right: 0.3em;
+}
+
+fieldset {
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+legend {
+  font-weight: 500;
+  color: var(--primary-purple);
+  font-size: 1.07em;
+  margin-bottom: 0.4em;
+}
+
+.section {
+  margin-bottom: 1.2em;
+}
+
+label {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 0.7em;
+  font-size: 1em;
+  cursor: pointer;
+  gap: 0.35em;
+}
+
+input[type="text"], select {
+  width: 100%;
+  padding: 0.65em 0.8em;
+  border-radius: 0.5em;
+  border: 1px solid var(--border);
+  font-size: 1.06em;
+  margin-top: 0.25em;
+  background: var(--secondary);
+  color: var(--text);
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+input[type="text"]:focus, select:focus {
+  outline: none;
+  border-color: var(--primary-purple);
+}
+
+input[type="radio"] {
+  accent-color: var(--primary-purple);
+}
+
+input[type="radio"]:focus-visible {
+  outline: 2px solid var(--primary-purple);
+}
+
+.card-type-group {
+  display: flex;
+  gap: 1.2em;
+  justify-content: center;
+  margin-bottom: 1.7em;
+}
+
+.card-radio {
+  background: #f4f4f8;
+  padding: 0.7em 1.2em;
+  border-radius: 0.7em;
+  border: 2px solid transparent;
+  transition: border 0.2s, background 0.2s;
+  font-weight: 500;
+  color: var(--primary-purple);
+  box-shadow: 0 1px 2px 0 rgba(111,66,193,0.03);
+  gap: 0.45em;
+  font-size: 1.01em;
+}
+
+.card-radio.infinity .card-icon {
+  color: var(--primary-infinity);
+}
+.card-radio.plus .card-icon {
+  color: var(--primary-plus);
+}
+
+.card-radio input[type="radio"] {
+  margin: 0 0.5em 0 0;
+}
+
+.card-radio input[type="radio"]:checked + .card-icon {
+  font-weight: bold;
+}
+
+.card-radio input[type="radio"]:checked ~ span,
+.card-radio input[type="radio"]:checked ~ .card-icon {
+  font-weight: bold;
+}
+
+.card-radio input[type="radio"]:checked ~ .card-icon,
+.card-radio input[type="radio"]:checked + .card-icon {
+  font-size: 1.15em;
+}
+
+.card-radio input[type="radio"]:checked {
+  accent-color: var(--primary-purple);
+}
+
+.card-radio input[type="radio"]:checked {
+  outline: 2px solid var(--primary-purple);
+}
+
+.card-radio input[type="radio"]:checked ~ span,
+.card-radio input[type="radio"]:checked ~ .card-icon {
+  color: var(--primary-purple);
+}
+
+.card-radio input[type="radio"]:focus-visible {
+  outline: 2px solid var(--primary-purple);
+}
+
+.card-radio input[type="radio"]:checked ~ span {
+  color: var(--primary-purple);
+}
+
+.card-radio input[type="radio"]:checked ~ .card-icon {
+  color: var(--primary-purple);
+}
+
+.card-radio input[type="radio"]:checked ~ span,
+.card-radio input[type="radio"]:checked ~ .card-icon {
+  font-weight: 600;
+}
+
+.card-radio input[type="radio"]:checked ~ .card-icon,
+.card-radio input[type="radio"]:checked + .card-icon {
+  color: var(--primary-purple);
+}
+
+.card-radio input[type="radio"]:checked ~ span,
+.card-radio input[type="radio"]:checked ~ .card-icon {
+  color: var(--primary-purple);
+}
+
+.card-radio input[type="radio"]:checked ~ .card-icon {
+  font-size: 1.25em;
+}
+
+.card-radio input[type="radio"]:checked {
+  border-color: var(--primary-purple);
+}
+
+.card-radio input[type="radio"]:checked {
+  background: var(--secondary);
+}
+
+.card-radio:hover, .card-radio input[type="radio"]:focus-visible {
+  border: 2px solid var(--primary-purple);
+  background: #f3effc;
+}
+
+.button-group {
+  display: flex;
+  gap: 0.8em;
+  justify-content: center;
+  margin-top: 1.7em;
+  margin-bottom: 1.1em;
+}
+
+button {
+  background: var(--primary-purple);
+  color: #fff;
+  border: none;
+  padding: 0.7em 1.6em;
+  border-radius: 0.5em;
+  font-size: 1.03em;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.18s;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
+  gap: 0.5em;
 }
-body.plus-card h1 { color: var(--accent-plus); }
 
-/* ... keep the rest of your styles as previously provided ... */
+button:hover, button:focus {
+  background: #5e35b1;
+}
+
+button#reset {
+  background: #e2e8f0;
+  color: var(--primary-purple);
+}
+
+button#reset:hover, button#reset:focus {
+  background: #d1c4e9;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.output-card {
+  background: var(--output-card-bg);
+  border-radius: 1.1em;
+  box-shadow: var(--output-card-shadow);
+  margin: 1.2em 0 0 0;
+  padding: 1.2em 1em 1em 1em;
+  font-size: 1.07em;
+  text-align: center;
+  border: 1.5px solid var(--primary-purple);
+  position: relative;
+}
+
+.neucoins-total {
+  font-size: 1.55em;
+  margin: 0.65em 0 0.35em 0;
+  font-weight: 700;
+  display: inline-block;
+  background: linear-gradient(90deg, var(--primary-purple), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.neucoins-total.blue {
+  background: linear-gradient(90deg, var(--primary-blue), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.neucoins-total.purple {
+  background: linear-gradient(90deg, var(--primary-purple), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.neucoins-breakdown {
+  display: flex;
+  justify-content: center;
+  gap: 2.5em;
+  font-size: 1.06em;
+  margin: 0.8em 0 0.2em 0;
+}
+.neucoins-breakdown div {
+  text-align: left;
+}
+.neucoins-breakdown span {
+  font-weight: 600;
+  color: var(--primary-purple);
+}
+
+.output-card .info {
+  margin-top: 1.3em;
+  font-size: 1em;
+  color: #555;
+}
+
+.neucoins-cap {
+  background: #f3effc;
+  color: var(--primary-purple);
+  border-radius: 0.6em;
+  padding: 0.45em 0.9em;
+  font-size: 0.98em;
+  margin: 0.5em auto 0.3em auto;
+  display: inline-block;
+}
+
+.success-icon {
+  color: var(--success);
+  font-size: 2.2em;
+  display: block;
+  margin-bottom: 0.18em;
+}
+
+.fa-circle-info {
+  color: var(--primary-purple);
+}
+
+.fa-circle-exclamation {
+  color: var(--danger);
+}
+
+.help-icon {
+  color: var(--primary-purple);
+  cursor: pointer;
+  margin-left: 0.25em;
+}
+
+.blue {
+  color: var(--primary-blue) !important;
+}
+
+.purple {
+  color: var(--primary-purple) !important;
+}
+
+footer {
+  width: 100%;
+  margin-top: 2.5em;
+  background: #f7f1fa;
+  color: #6f42c1;
+  text-align: center;
+  padding: 1.1em 0 0.6em 0;
+  border-top: 1.5px solid #e0d7f8;
+  font-size: 1.03em;
+  letter-spacing: 0.01em;
+}
+
+.footer-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.4em;
+  flex-wrap: wrap;
+}
+
+.version {
+  font-size: 0.97em;
+  color: #b69de0;
+  margin-left: 0.8em;
+  background: #f3effc;
+  border-radius: 1em;
+  padding: 0.12em 1.1em;
+  letter-spacing: 0.03em;
+}
+
+@media (max-width: 650px) {
+  .container {
+    padding: 1.3rem 0.3rem 1.1rem 0.3rem;
+    border-radius: 0.8em;
+    max-width: 97vw;
+  }
+  h1 {
+    font-size: 1.45em;
+  }
+}
+
+@media (max-width: 399px) {
+  .container {
+    padding: 0.3rem 0.1rem 0.5rem 0.1rem;
+  }
+}
